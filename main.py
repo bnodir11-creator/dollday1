@@ -1,8 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, validator  # Для v1
-# ИЛИ
-from pydantic import BaseModel, field_validator  # Для v2 (но нужно проверить синтакс)
+from pydantic import BaseModel, validator
 from datetime import datetime
 import logging
 from typing import List, Dict
