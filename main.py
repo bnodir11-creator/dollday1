@@ -67,7 +67,20 @@ async def get_discounts():
 async def get_discounts(req: DiscountRequest):
     # Ваша реализация...
     pass
+from fastapi.staticfiles import StaticFiles
+import os
 
+# Создаем папку static если её нет
+os.makedirs("static", exist_ok=True)
+
+# Добавляем обработку статических файлов
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Простой favicon endpoint
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return FileResponse("static/favicon.ico")
+    
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
