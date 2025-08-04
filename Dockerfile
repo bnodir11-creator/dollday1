@@ -1,10 +1,11 @@
 FROM python:3.11-slim
 WORKDIR /app
 
-# Установка зависимостей с очисткой кеша
+# Создаем папку для статики
+RUN mkdir -p /app/static
+
 COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
