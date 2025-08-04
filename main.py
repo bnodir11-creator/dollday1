@@ -11,14 +11,33 @@ import asyncio
 from bs4 import BeautifulSoup
 import os
 import time
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.inmemory import InMemoryBackend
+from fastapi_cache.decorator import cache
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+
+                  
 # Инициализация приложения
+
 app = FastAPI(
     title="Discount Aggregator API",
     description="API для агрегации скидок и промо-акций",
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
+    servers=[{"url": "https://dollday1.onrender.com", "description": "Production server"}],
+    contact={
+        "name": "Support",
+        "email": "your@email.com"
+    },
+    license_info={
+        "name": "MIT",
+    }
 )
 
 # Настройка CORS
@@ -103,8 +122,15 @@ class DiscountAggregator:
             return []
 
     # ... (остальные методы класса остаются без изменений)
-
+@app.on_event("startup")
+async def startup():
+    FastAPICache.init(InMemoryBackend())
+    
 # Эндпоинты
+@app.get("/discounts")
+@cache(expire=300)  # 5 минут
+async def get_discounts():
+
 @app.get("/", tags=["Root"])
 async def root():
     return {
@@ -116,6 +142,14 @@ async def root():
             "health_check": "/health"
         }
     }
+
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
 
 @app.get("/health", tags=["Status"], response_model=HealthCheck)
 async def health_check():
@@ -139,7 +173,8 @@ async def get_discounts():
     """Получить список текущих скидок"""
     return {"discounts": [...]}
 
-@app.post("/api/get-discounts", tags=["Discounts"])
+@app.post("/api/get-discounts")
+@limiter.limit("10/minute")
 async def get_discounts(req: DiscountRequest):
     if req.country != "US":
         raise HTTPException(status_code=400, detail="Only USA is currently supported")
