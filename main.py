@@ -1,12 +1,24 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, validator
+from pydantic import BaseModel, field_validator  # Изменено с validator на field_validator
 from datetime import datetime
 import logging
 from typing import List, Dict
 import httpx
 import asyncio
 from bs4 import BeautifulSoup
+
+app = FastAPI()
+
+# Пример модели с валидатором для Pydantic v2
+class Item(BaseModel):
+    name: str
+    
+    @field_validator('name')
+    def validate_name(cls, v: str) -> str:
+        if len(v) < 3:
+            raise ValueError("Name must be at least 3 characters long")
+        return v
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
