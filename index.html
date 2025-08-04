@@ -292,7 +292,7 @@
         loadingElement.style.display = 'block';
 
         try {
-          const response = await fetch('http://localhost:8000/api/get-discounts', {
+          const response = await fetch('https://dollday.onrender.com', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ country, zip, stores: selectedStores, categories: selectedCategories })
@@ -358,4 +358,5 @@
     });
   </script>
 </body>
+
 </html>
