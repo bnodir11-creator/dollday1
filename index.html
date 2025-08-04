@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Advanced Discount Aggregator</title>
+  <style>
+    :root {
+      --primary: #3498db;
+      --secondary: #2ecc71;
+      --danger: #e74c3c;
+      --light: #ecf0f1;
+      --dark: #2c3e50;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      color: var(--dark);
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    header {
+      background-color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 20px 0;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin: 0;
+    }
+
+    .search-panel {
+      background: white;
+      border-radius: 8px;
+      padding: 25px;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--dark);
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border 0.3s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .btn {
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: background 0.3s;
+      width: 100%;
+    }
+
+    .btn:hover {
+      background-color: #2980b9;
+    }
+
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 15px 0;
+    }
+
+    .results-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 25px;
+    }
+
+    .deal-card {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      transition: transform 0.3s;
+    }
+
+    .deal-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .deal-header {
+      padding: 15px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .deal-source {
+      background-color: var(--primary);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    .deal-body {
+      padding: 15px;
+    }
+
+    .deal-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--dark);
+    }
+
+    .deal-price {
+      font-size: 18px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .deal-original-price {
+      text-decoration: line-through;
+      color: #95a5a6;
+      font-size: 14px;
+      margin-left: 8px;
+    }
+
+    .deal-footer {
+      padding: 15px;
+      background-color: #f8f9fa;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .deal-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .deal-link:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      font-size: 18px;
+      color: #7f8c8d;
+    }
+
+    .error {
+      color: var(--danger);
+      background-color: #fadbd8;
+      padding: 15px;
+      border-radius: 4px;
+      margin: 20px 0;
+    }
+
+    @media (max-width: 768px) {
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .results-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>Advanced Discount Aggregator</h1>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="search-panel">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="country">Country</label>
+          <select id="country" class="form-control">
+            <option value="US" selected>United States</option>
+            <option value="CA">Canada</option>
+            <option value="UK">United Kingdom</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="zip">ZIP Code</label>
+          <input type="text" id="zip" class="form-control" placeholder="Enter 5-digit ZIP" maxlength="5">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Select Stores</label>
+        <div class="checkbox-group" id="store-options">
+          <label><input type="checkbox" id="amazon" checked> Amazon</label>
+          <label><input type="checkbox" id="walmart" checked> Walmart</label>
+          <label><input type="checkbox" id="target" checked> Target</label>
+          <label><input type="checkbox" id="slickdeals" checked> Slickdeals</label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Select Categories</label>
+        <div class="checkbox-group" id="category-options">
+          <label><input type="checkbox" id="restaurants"> Restaurants</label>
+          <label><input type="checkbox" id="entertainment"> Entertainment</label>
+          <label><input type="checkbox" id="clothing"> Clothing</label>
+        </div>
+      </div>
+
+      <button id="search-btn" class="btn">Find Discounts</button>
+    </section>
+
+    <section id="results-section">
+      <div id="loading" class="loading" style="display: none;">
+        <p>Searching for the best deals...</p>
+      </div>
+
+      <div id="error-container" class="error" style="display: none;"></div>
+
+      <div id="results-container" class="results-container"></div>
+    </section>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const searchBtn = document.getElementById('search-btn');
+      const resultsContainer = document.getElementById('results-container');
+      const loadingElement = document.getElementById('loading');
+      const errorContainer = document.getElementById('error-container');
+
+      searchBtn.addEventListener('click', async function () {
+        const zip = document.getElementById('zip').value.trim();
+        const country = document.getElementById('country').value;
+
+        const selectedStores = [];
+        document.querySelectorAll('#store-options input[type="checkbox"]:checked').forEach(cb => selectedStores.push(cb.id));
+
+        const selectedCategories = [];
+        document.querySelectorAll('#category-options input[type="checkbox"]:checked').forEach(cb => selectedCategories.push(cb.id));
+
+        if (!zip || !/^[0-9]{5}$/.test(zip)) {
+          showError("Please enter a valid 5-digit ZIP code");
+          return;
+        }
+
+        if (selectedStores.length === 0 && selectedCategories.length === 0) {
+          showError("Please select at least one store or category");
+          return;
+        }
+
+        resultsContainer.innerHTML = '';
+        errorContainer.style.display = 'none';
+        loadingElement.style.display = 'block';
+
+        try {
+          const response = await fetch('http://localhost:8000/api/get-discounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ country, zip, stores: selectedStores, categories: selectedCategories })
+          });
+
+          const data = await response.json();
+          displayResults(data);
+        } catch (error) {
+          showError("Something went wrong. Please try again.");
+        } finally {
+          loadingElement.style.display = 'none';
+        }
+      });
+
+      function showError(msg) {
+        errorContainer.textContent = msg;
+        errorContainer.style.display = 'block';
+      }
+
+      function displayResults(data) {
+        resultsContainer.innerHTML = '';
+
+        if (data.slickdeals) {
+          data.slickdeals.forEach(deal => resultsContainer.appendChild(createDealCard(deal)));
+        }
+
+        if (data.store_deals) {
+          for (const store in data.store_deals) {
+            data.store_deals[store].forEach(deal => resultsContainer.appendChild(createDealCard(deal)));
+          }
+        }
+
+        if (data.category_deals) {
+          for (const category in data.category_deals) {
+            data.category_deals[category].forEach(deal => resultsContainer.appendChild(createDealCard(deal)));
+          }
+        }
+
+        if (resultsContainer.children.length === 0) {
+          showError("No discounts found for your search criteria");
+        }
+      }
+
+      function createDealCard(deal) {
+        const card = document.createElement('div');
+        card.className = 'deal-card';
+
+        card.innerHTML = `
+          <div class="deal-header">
+            <span class="deal-source">${deal.source}</span>
+          </div>
+          <div class="deal-body">
+            <h3 class="deal-title">${deal.title}</h3>
+            ${deal.price && deal.price !== 'N/A' ? `<div class="deal-price">${deal.price}</div>` : ''}
+          </div>
+          <div class="deal-footer">
+            <a href="${deal.link}" target="_blank" class="deal-link">View Deal</a>
+          </div>
+        `;
+
+        return card;
+      }
+    });
+  </script>
+</body>
+</html>
